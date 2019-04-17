@@ -2,6 +2,28 @@ function Application() {
   //this.terms = terms
   let self = this
 
+  // Animated GIF when hovering
+  this.animateGif = function (cardImg) {
+    let state = cardImg.attr('data-state')
+    if (state === 'still') {
+      let animateUrl = cardImg.attr('data-animate')
+      cardImg
+        .attr('data-state', 'animate')
+        .attr('src', animateUrl)
+    }
+  }
+
+  // Still GIF when not hovering
+  this.freezeGif = function (cardImg) {
+    let state = cardImg.attr('data-state')
+    if (state === 'animate') {
+      let stillUrl = cardImg.attr('data-still')
+      cardImg
+        .attr('data-state', 'still')
+        .attr('src', stillUrl)
+    }
+  }
+
   // Query the search term to the Giphy API
   this.renderImages = function (term) {
     let apiKey = 'yaCBLMf7PBdKsRLBuqoknHR7A15qjn5V'
@@ -30,6 +52,13 @@ function Application() {
         let overlay = $('<div>')
           .addClass('card-img-overlay')
           .append(cardTitle, cardText)
+          .hover(function() {
+            let cardImg = $(this).prev()
+            self.animateGif(cardImg)
+          }, function() {
+            let cardImg = $(this).prev()
+            self.freezeGif(cardImg)
+          })
         let card = $('<div>')
           .addClass('card bg-dark text-white text-shadow')
           .append(img, overlay)
@@ -79,32 +108,4 @@ function Application() {
     $termInput.val('')
   })
 
-  // Image overlay event listeners
-  $(document.body).on({
-
-    // Animated GIF when hovering
-    mouseenter: function () {
-      console.log('here')
-      let cardImg = $(this).prev()
-      let state = cardImg.attr('data-state')
-      if (state === 'still') {
-        let animateUrl = cardImg.attr('data-animate')
-        cardImg
-          .attr('data-state', 'animate')
-          .attr('src', animateUrl)
-      }
-    },
-
-    // Still GIF when not hovering
-    mouseleave: function () {
-      let cardImg = $(this).prev()
-      let state = cardImg.attr('data-state')
-      if (state === 'animate') {
-        let stillUrl = cardImg.attr('data-still')
-        cardImg
-          .attr('data-state', 'still')
-          .attr('src', stillUrl)
-      }
-    }
-  }, '.card-img-overlay')
 }
