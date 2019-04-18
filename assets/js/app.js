@@ -26,6 +26,22 @@ function Application() {
     }
   }
 
+  // Locally store favorite pics
+  this.storeFavorites = function() {
+    localStorage.clear()
+    localStorage.setItem('favorites', JSON.stringify(this.favorites))
+  }
+
+  // Load Locally stored favorite pics
+  this.loadFavorites = function () {
+    let favString = localStorage.getItem('favorites')
+    if (favString) {
+      this.favorites = JSON.parse(localStorage.getItem('favorites'))
+    } else {
+      this.favorites = []
+    }
+  }
+
   // Render the loaded images
   this.renderImages = function (images) {
     let $images = $('#images')
@@ -54,6 +70,7 @@ function Application() {
         .on('click', function () {
           if (self.favorites.indexOf(imgData) == -1) {
             self.favorites.push(imgData) // Favorite image
+            self.storeFavorites()
             $(this).addClass('favorited')
           } else {
             self.favorites.splice(self.favorites.indexOf(imgData), 1) // Unfavorite image
