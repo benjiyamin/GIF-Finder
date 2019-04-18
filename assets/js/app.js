@@ -27,7 +27,7 @@ function Application() {
   }
 
   // Locally store favorite pics
-  this.storeFavorites = function() {
+  this.storeFavorites = function () {
     localStorage.clear()
     localStorage.setItem('favorites', JSON.stringify(this.favorites))
   }
@@ -42,7 +42,56 @@ function Application() {
     }
   }
 
-  // Render the loaded images
+  // Produce an image card from the data
+  this.imageCard = function (imgData) {
+    let img = $('<img>')
+      .addClass('card-img-top')
+      .attr('src', imgData.images.fixed_height_still.url)
+      .attr('data-still', imgData.images.fixed_height_still.url)
+      .attr('data-animate', imgData.images.fixed_height.url)
+      .attr('data-state', 'still')
+    let cardTitle = $('<h5>')
+      .addClass('card-title')
+      .text(imgData.title)
+    let cardText = $('<p>')
+      .addClass('card-text rating-text')
+      .text('Rating: ' + imgData.rating.toUpperCase())
+    let favorite = $('<button>')
+      .attr('type', 'button')
+      .addClass('btn btn-link fav-btn')
+      .html('<i class="fas fa-heart"></i>')
+      .on('click', function () {
+        if (self.favorites.indexOf(imgData) == -1) {
+        //if (self.favorites.findIndex(favImg => favImg == imgData) === -1) {
+          self.favorites.push(imgData) // Favorite image
+          $(this).addClass('favorited')
+        } else {
+          self.favorites.splice(self.favorites.indexOf(imgData), 1) // Unfavorite image
+          $(this).removeClass('favorited')
+        }
+        self.storeFavorites()
+      })
+    //if (!self.favorites.indexOf(imgData) == -1) {
+    if (!(self.favorites.findIndex(favImg => favImg == imgData) === -1)) { // Img is favorited
+      favorite.addClass('favorited')
+    }
+    let overlay = $('<div>')
+      .addClass('card-img-overlay')
+      .append(cardTitle, cardText, favorite)
+      .hover(function () {
+        let cardImg = $(this).prev()
+        self.animateGif(cardImg)
+      }, function () {
+        let cardImg = $(this).prev()
+        self.freezeGif(cardImg)
+      })
+    let card = $('<div>')
+      .addClass('card bg-dark text-white text-shadow')
+      .append(img, overlay)
+    return card
+  }
+
+  // Render an array images
   this.renderImages = function (images) {
     let $images = $('#images')
     $images.empty()
@@ -51,49 +100,7 @@ function Application() {
       imagesToRender = images
     }
     imagesToRender.forEach(imgData => {
-      let img = $('<img>')
-        .addClass('card-img-top')
-        .attr('src', imgData.images.fixed_height_still.url)
-        .attr('data-still', imgData.images.fixed_height_still.url)
-        .attr('data-animate', imgData.images.fixed_height.url)
-        .attr('data-state', 'still')
-      let cardTitle = $('<h5>')
-        .addClass('card-title')
-        .text(imgData.title)
-      let cardText = $('<p>')
-        .addClass('card-text rating-text')
-        .text('Rating: ' + imgData.rating.toUpperCase())
-      let favorite = $('<a>')
-        .attr('href', '#')
-        .html('<i class="fas fa-heart"></i>')
-        .addClass('fav-btn')
-        .on('click', function () {
-          if (self.favorites.indexOf(imgData) == -1) {
-            self.favorites.push(imgData) // Favorite image
-            self.storeFavorites()
-            $(this).addClass('favorited')
-          } else {
-            self.favorites.splice(self.favorites.indexOf(imgData), 1) // Unfavorite image
-            $(this).removeClass('favorited')
-          }
-        })
-      //if (!self.favorites.indexOf(imgData) == -1) {
-      if (!(self.favorites.findIndex(favImg => favImg == imgData) === -1)) {  // Img is favorited
-        favorite.addClass('favorited')
-      }
-      let overlay = $('<div>')
-        .addClass('card-img-overlay')
-        .append(cardTitle, cardText, favorite)
-        .hover(function () {
-          let cardImg = $(this).prev()
-          self.animateGif(cardImg)
-        }, function () {
-          let cardImg = $(this).prev()
-          self.freezeGif(cardImg)
-        })
-      let card = $('<div>')
-        .addClass('card bg-dark text-white text-shadow')
-        .append(img, overlay)
+      let card = this.imageCard(imgData)
       $images.prepend(card)
     })
   }
@@ -154,6 +161,7 @@ function Application() {
   })
 
   $('#favoritesButton').on('click', function () {
+    //event.preventDefault();
     self.renderImages(self.favorites)
   })
 
