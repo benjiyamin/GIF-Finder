@@ -1,6 +1,8 @@
 function Application() {
   //this.terms = terms
   let self = this
+  this.images = []
+  this.favorites = []
 
   // Animated GIF when hovering
   this.animateGif = function (cardImg) {
@@ -24,46 +26,73 @@ function Application() {
     }
   }
 
+  // Render the loaded images
+  this.renderImages = function (images) {
+    let $images = $('#images')
+    $images.empty()
+    imagesToRender = this.images
+    if (images) {
+      imagesToRender = images
+    }
+    imagesToRender.forEach(imgData => {
+      let img = $('<img>')
+        .addClass('card-img-top')
+        .attr('src', imgData.images.fixed_height_still.url)
+        .attr('data-still', imgData.images.fixed_height_still.url)
+        .attr('data-animate', imgData.images.fixed_height.url)
+        .attr('data-state', 'still')
+      let cardTitle = $('<h5>')
+        .addClass('card-title')
+        .text(imgData.title)
+      let cardText = $('<p>')
+        .addClass('card-text rating-text')
+        .text('Rating: ' + imgData.rating.toUpperCase())
+      let favorite = $('<a>')
+        .attr('href', '#')
+        .html('<i class="fas fa-heart"></i>')
+        .addClass('fav-btn')
+        .on('click', function () {
+          if (self.favorites.indexOf(imgData) == -1) {
+            self.favorites.push(imgData) // Favorite image
+            $(this).addClass('favorited')
+          } else {
+            self.favorites.splice(self.favorites.indexOf(imgData), 1) // Unfavorite image
+            $(this).removeClass('favorited')
+          }
+        })
+      //if (!self.favorites.indexOf(imgData) == -1) {
+      if (!(self.favorites.findIndex(favImg => favImg == imgData) === -1)) {  // Img is favorited
+        favorite.addClass('favorited')
+      }
+      let overlay = $('<div>')
+        .addClass('card-img-overlay')
+        .append(cardTitle, cardText, favorite)
+        .hover(function () {
+          let cardImg = $(this).prev()
+          self.animateGif(cardImg)
+        }, function () {
+          let cardImg = $(this).prev()
+          self.freezeGif(cardImg)
+        })
+      let card = $('<div>')
+        .addClass('card bg-dark text-white text-shadow')
+        .append(img, overlay)
+      $images.prepend(card)
+    })
+  }
+
   // Query the search term to the Giphy API
-  this.renderImages = function (term) {
+  this.loadFromGiphy = function (term, render = false) {
     let apiKey = 'yaCBLMf7PBdKsRLBuqoknHR7A15qjn5V'
     let queryUrl = 'https://api.giphy.com/v1/gifs/search?api_key=' + apiKey + '&q=' + term + '&limit=10&offset=0&rating=G&lang=en'
     $.ajax({
       method: 'GET',
       url: queryUrl
     }).then(function (response) {
-      //console.log(response.data)
-      let $images = $('#images')
-      $images.empty()
-      let imagesData = response.data
-      imagesData.forEach(imgData => {
-        let img = $('<img>')
-          .addClass('card-img-top')
-          .attr('src', imgData.images.fixed_height_still.url)
-          .attr('data-still', imgData.images.fixed_height_still.url)
-          .attr('data-animate', imgData.images.fixed_height.url)
-          .attr('data-state', 'still')
-        let cardTitle = $('<h5>')
-          .addClass('card-title')
-          .text(imgData.title)
-        let cardText = $('<p>')
-          .addClass('card-text rating-text')
-          .text('Rating: ' + imgData.rating.toUpperCase())
-        let overlay = $('<div>')
-          .addClass('card-img-overlay')
-          .append(cardTitle, cardText)
-          .hover(function() {
-            let cardImg = $(this).prev()
-            self.animateGif(cardImg)
-          }, function() {
-            let cardImg = $(this).prev()
-            self.freezeGif(cardImg)
-          })
-        let card = $('<div>')
-          .addClass('card bg-dark text-white text-shadow')
-          .append(img, overlay)
-        $images.prepend(card)
-      });
+      self.images = response.data
+      if (render) {
+        self.renderImages()
+      }
     })
   }
 
@@ -75,7 +104,6 @@ function Application() {
       .on('click', function () {
         $(this).parent().remove()
       })
-
     let button = $('<a>')
       .attr('href', '#')
       .attr('role', 'button')
@@ -83,7 +111,7 @@ function Application() {
       .text(term + ' ')
       .append(deleteBtn)
       .on('click', function () {
-        self.renderImages(term)
+        self.loadFromGiphy(term, render = true)
       })
     $('#terms').append(button)
     return button
@@ -99,13 +127,17 @@ function Application() {
 
   // Add a new term from input when the term button is pressed
   $('#termButton').on('click', function (event) {
-    event.preventDefault();
+    //event.preventDefault();
     let $termInput = $('#termInput')
     let input = $termInput.val().trim()
     if (input) {
       self.renderTerm(input)
     }
     $termInput.val('')
+  })
+
+  $('#favoritesButton').on('click', function () {
+    self.renderImages(self.favorites)
   })
 
 }

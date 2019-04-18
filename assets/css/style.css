@@ -6,3 +6,15 @@
 .text-shadow {
     text-shadow: black 0px 0px 10px;
 }
+
+.fav-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    color: white;
+}
+
+.fav-btn.favorited {
+    color: red;
+}
