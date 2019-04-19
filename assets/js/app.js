@@ -1,8 +1,8 @@
 function Application() {
-  //this.terms = terms
   let self = this
   this.images = []
   this.favorites = []
+  let apiKey = 'yaCBLMf7PBdKsRLBuqoknHR7A15qjn5V'
 
   // Animated GIF when hovering
   this.animateGif = function (cardImg) {
@@ -107,8 +107,7 @@ function Application() {
 
   // Query the search term to the Giphy API
   this.loadFromGiphy = function (term, render = false) {
-    let apiKey = 'yaCBLMf7PBdKsRLBuqoknHR7A15qjn5V'
-    let queryUrl = 'https://api.giphy.com/v1/gifs/search?api_key=' + apiKey + '&q=' + term + '&limit=10&offset=0&rating=G&lang=en'
+    let queryUrl = 'https://api.giphy.com/v1/gifs/search?api_key=' + apiKey + '&q=' + term + '&limit=10&offset=0&rating=PG-13&lang=en'
     $.ajax({
       method: 'GET',
       url: queryUrl
@@ -149,9 +148,19 @@ function Application() {
     });
   }
 
+  this.renderTrending = function() {
+    let queryUrl = 'https://api.giphy.com/v1/gifs/trending?api_key=' + apiKey + '&limit=10&rating=PG-13&lang=en'
+    $.ajax({
+      method: 'GET',
+      url: queryUrl
+    }).then(function (response) {
+      self.images = response.data
+      self.renderImages()
+    })
+  }
+
   // Add a new term from input when the term button is pressed
   $('#termButton').on('click', function (event) {
-    //event.preventDefault();
     let $termInput = $('#termInput')
     let input = $termInput.val().trim()
     if (input) {
@@ -161,8 +170,11 @@ function Application() {
   })
 
   $('#favoritesButton').on('click', function () {
-    //event.preventDefault();
     self.renderImages(self.favorites)
+  })
+
+  $('#trendingButton').on('click', function() {
+    self.renderTrending()
   })
 
 }
