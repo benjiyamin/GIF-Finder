@@ -53,16 +53,19 @@ function Application() {
     let cardTitle = $('<h5>')
       .addClass('card-title')
       .text(imgData.title)
+      .hide()
     let cardText = $('<p>')
       .addClass('card-text rating-text')
       .text('Rating: ' + imgData.rating.toUpperCase())
+      .hide()
     let favorite = $('<button>')
       .attr('type', 'button')
-      .addClass('btn btn-link fav-btn')
+      .addClass('btn btn-link fav-btn text-shadow')
       .html('<i class="fas fa-heart"></i>')
+      .hide()
       .on('click', function () {
         if (self.favorites.indexOf(imgData) == -1) {
-        //if (self.favorites.findIndex(favImg => favImg == imgData) === -1) {
+          //if (self.favorites.findIndex(favImg => favImg == imgData) === -1) {
           self.favorites.push(imgData) // Favorite image
           $(this).addClass('favorited')
         } else {
@@ -81,9 +84,11 @@ function Application() {
       .hover(function () {
         let cardImg = $(this).prev()
         self.animateGif(cardImg)
+        $(this).children().slideDown()
       }, function () {
         let cardImg = $(this).prev()
         self.freezeGif(cardImg)
+        $(this).children().slideUp()
       })
     let card = $('<div>')
       .addClass('card bg-dark text-white text-shadow')
@@ -107,6 +112,7 @@ function Application() {
 
   // Query the search term to the Giphy API
   this.loadFromGiphy = function (term, render = false) {
+    term = term.replace(/[^a-zA-Z0-9]/g, '') // Remove non-number and non-letter characters
     let queryUrl = 'https://api.giphy.com/v1/gifs/search?api_key=' + apiKey + '&q=' + term + '&limit=10&offset=0&rating=PG-13&lang=en'
     $.ajax({
       method: 'GET',
@@ -148,7 +154,7 @@ function Application() {
     });
   }
 
-  this.renderTrending = function() {
+  this.trendingFromGiphy = function () {
     let queryUrl = 'https://api.giphy.com/v1/gifs/trending?api_key=' + apiKey + '&limit=10&rating=PG-13&lang=en'
     $.ajax({
       method: 'GET',
@@ -173,8 +179,8 @@ function Application() {
     self.renderImages(self.favorites)
   })
 
-  $('#trendingButton').on('click', function() {
-    self.renderTrending()
+  $('#trendingButton').on('click', function () {
+    self.trendingFromGiphy()
   })
 
 }

@@ -18,6 +18,10 @@
     color: red;
 }
 
+.controls {
+    padding: 2rem;
+}
+
 
 /* Small devices (tablets, 576px and up) */
 @media (min-width: 576px) {

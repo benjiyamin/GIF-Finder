@@ -21,7 +21,7 @@
     <a class="navbar-brand" href="#">GIF Finder</a>
   </nav>
 
-  <div class="container jumbotron mt-4 bg-secondary">
+  <div class="container jumbotron mt-4 bg-secondary controls">
     <div class="row">
       <div class="col-md-4">
 
@@ -34,9 +34,9 @@
         </div>
         <div class="input-group mb-3">
           <button type="button" class="btn btn-info btn-block" id="trendingButton"><i class="fas fa-chart-line"></i>
-            Trending on Giphy</button>
+            Trending</button>
         </div>
-        <div class="input-group mb-3">
+        <div class="input-group mb-3 mb-md-0">
           <button type="button" class="btn btn-info btn-block" id="favoritesButton"><i class="fas fa-heart"></i> My
             Favorites</button>
         </div>
@@ -72,8 +72,8 @@
     $(document).ready(function () {
 
       let app = new Application()
-      app.renderTrending()
-      terms = ['mage', 'fighter', 'ranger', 'warlock']
+      app.trendingFromGiphy()
+      terms = ['#highfive', '#omg', '#confused', '#excited', '#what']
       app.renderterms(terms = terms)
       app.loadFavorites()
 
